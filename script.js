@@ -14,20 +14,14 @@ function addTask() {
   // Yeni liste öğesi oluştur
   const newTask = document.createElement("li");
   newTask.textContent = taskText;
-  newTask.style.opacity = "0";
-
-  // Görevi listeye ekle
-  listContainer.appendChild(newTask);
-
-  // Görsel efekt için opacity değişimi
-  setTimeout(() => {
-    newTask.style.opacity = "1";
-  }, 100);
 
   // Silme butonu ekle
   const deleteBtn = document.createElement("span");
   deleteBtn.textContent = "\u00d7";
   newTask.appendChild(deleteBtn);
+
+  // Görevi listeye ekle
+  listContainer.appendChild(newTask);
 
   // Giriş kutusunu temizle
   inputBox.value = "";
@@ -51,30 +45,49 @@ function handleListClick(event) {
 
 // Veriyi tarayıcıya kaydetme
 function saveData() {
-  localStorage.setItem("data", listContainer.innerHTML);
+  const tasks = Array.from(listContainer.children).map((task) => ({
+    text: task.firstChild.textContent,
+    checked: task.classList.contains("checked"),
+  }));
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 // Veriyi tarayıcıdan yükleme
 function showTask() {
-  listContainer.innerHTML = localStorage.getItem("data") || "";
+  const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  listContainer.innerHTML = "";
+
+  savedTasks.forEach(({ text, checked }) => {
+    const newTask = document.createElement("li");
+    newTask.textContent = text;
+
+    if (checked) {
+      newTask.classList.add("checked");
+    }
+
+    const deleteBtn = document.createElement("span");
+    deleteBtn.textContent = "\u00d7";
+    newTask.appendChild(deleteBtn);
+
+    listContainer.appendChild(newTask);
+  });
 }
 
 // Hata mesajını gösterme
 function showAlert(message) {
   let alertBox = document.querySelector(".alert");
 
-  // Eğer hata mesajı yoksa oluştur
   if (!alertBox) {
     alertBox = document.createElement("div");
     alertBox.className = "alert";
     document.body.appendChild(alertBox);
   }
 
-  // Mesajı ayarla ve göster
   alertBox.textContent = message;
   alertBox.style.display = "block";
 
-  // Mesajı belirli bir süre sonra gizle
   setTimeout(() => {
     alertBox.style.display = "none";
   }, 4000);
